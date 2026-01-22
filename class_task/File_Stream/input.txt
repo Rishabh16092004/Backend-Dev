@@ -1,0 +1,9 @@
+Hello GLA
+Welcome to Stream
+rishabh
+jaiswal
+mathura
+pathak
+fs.createReadStream("./sample.txt")
+.pipe(upperCaseTransform)                                                                                                                    
+.pipe(fs.createWriteStream("./logs.txt"));
