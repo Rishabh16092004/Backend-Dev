@@ -1,5 +1,0 @@
-ENOENT = file or directory does not exixt
-EACCES = permission denied
-EEXIST = file already exixt
-EISDIR = file expected directory found 
-ENODIR = directory expected file found

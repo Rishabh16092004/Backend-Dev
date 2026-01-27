@@ -1,0 +1,6 @@
+
+Log File Summary Report
+Total Lines: 2
+ERROR Count: 0
+WARNING Count: 0
+INFO Count: 0
