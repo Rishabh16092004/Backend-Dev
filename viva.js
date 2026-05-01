@@ -6,62 +6,90 @@ const app = express();
 app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/viva")
-.then(()=>{
-    console.log("Connected")
-})
-.catch((err)=>{
-    console.log(err);
-})
+    .then(() => {
+        console.log("Connected")
+    })
+    .catch((err) => {
+        console.log(err);
+    })
 
 const productSchema = mongoose.Schema({
     name: {
-        type : String,
-        require:true
+        type: String,
+        require: true
     },
-    price:{
-        type:Number,
-        require:true 
+    price: {
+        type: Number,
+        require: true
     },
-    inStock :{
-        type:Boolean,
-        require:true
+    inStock: {
+        type: Boolean,
+        require: true
     }
 })
 
-const Product = mongoose.model("Product",productSchema);
+const Product = mongoose.model("Product", productSchema);
 
-app.get("/products",async(req,res)=>{
-    const data =await Product.find();
-    
-    res.json({msg:"products fetch successfully"},data);
+app.get("/products", async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json(products);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 })
 
-app.post("/products",async(req,res)=>{
-    const {name,price,isStock} = req.body;
-    const product = new Product({
-        name,price,isStock
-    })
-    await product.save();
-    res.json({msg:"product save successfully"},product);
+app.post("/products", async (req, res) => {
+    try {
+        const product = new Product(req.body);
+        const saved = await product.save();
+        res.status(201).json(saved);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 })
 
-app.get("/products/:id",async(req,res)=>{
-    const id = req.params.id;
-    const pro =await Product.find({id:id});
-    res.json({msg:"user fetch successfully"},pro);
+app.get("/products/:id", async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        res.json(product);
+    } catch (err) {
+        res.status(400).json({ error: "Invalid ID" });
+    }
 })
 
-app.put("/products/:id",async(req,res)=>{
-    const id = req.params.id;
+app.put("/products/:id", async (req, res) => {
+    try {
+        const updated = await Product.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+        if (!updated) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 })
 
-app.delete("/products/:id",async(req,res)=>{
-    const id = req.params.id;
-    const del =await Product.delete({id});
-    res.json({message:"product delete successfully",del});
+app.delete("/products/:id", async (req, res) => {
+    try {
+        const deleted = await Product.findByIdAndDelete(req.params.id);
+        if (!deleted) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        res.json({ message: "Product deleted" });
+    } catch (err) {
+        res.status(400).json({ error: "Invalid ID" });
+    }
 })
 
 
-app.listen(5000,()=>{
+app.listen(5000, () => {
     console.log("Server started");
 })
